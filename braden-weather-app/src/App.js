@@ -6,6 +6,7 @@ import React, {
   useReducer,
   useContext,
 } from "react";
+import { saveLinks } from "./components/utils";
 import "./App.css";
 import SearchFunction from "./components/searchFunction";
 import WeekForecast from "./components/forecast";
@@ -120,6 +121,7 @@ function App() {
     setClickCount((prevCount) => {
       const newCount = prevCount + 1;
       saveDotsAndClickCount(newCount, activeDotIndex);
+      saveLinks(newCount, activeDotIndex);
       return newCount;
     });
   }
@@ -135,22 +137,8 @@ function App() {
         inline: "center",
       });
     }
+    console.log("Dot Clicked: Index -", index, "Active Dot Index -", activeDotIndex);
   }
-
-  // handle user scrolling and updating current active dot
-  // handle user scrolling and updating current active dot
-function handleScroll() {
-  if (!dotsContainerRef.current) return;
-
-  const scrollPosition = dotsContainerRef.current.scrollLeft;
-  const appWidth = dotsContainerRef.current.querySelector(".App").offsetWidth;
-
-  const activeIndex = Math.round(scrollPosition / appWidth);
-
-  setActiveDotIndex(activeIndex);
-  saveDotsAndClickCount(clickCount, activeIndex); // Pass activeIndex instead of activeDotIndex
-}
-
 
   useEffect(() => {
     window.addEventListener("wheel", handleScroll);
@@ -159,6 +147,24 @@ function handleScroll() {
       window.removeEventListener("wheel", handleScroll);
     };
   }, [clickCount]); 
+  // handle user scrolling and updating current active dot
+  function handleScroll() {
+    if (!dotsContainerRef.current) return;
+  
+    const scrollPosition = dotsContainerRef.current.scrollLeft;
+    const appWidth = dotsContainerRef.current.querySelector(".App").offsetWidth;
+  
+    const activeIndex = Math.round(scrollPosition / appWidth);
+  
+    // Use the callback to ensure the latest state value
+    setActiveDotIndex((prevIndex) => {
+      if (prevIndex !== activeIndex) {
+        saveDotsAndClickCount(clickCount, activeIndex);
+      }
+      return activeIndex;
+    });
+  }
+
 
   // jsx return
   return (

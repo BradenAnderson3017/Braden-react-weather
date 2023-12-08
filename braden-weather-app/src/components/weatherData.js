@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useCityData } from "../App";
 import { sevenDayForecast } from "./forecast";
 import { timeDateContainer } from "./searchFunction";
+import { saveLinks } from "./utils";
+
 import "./weatherData.css";
 
 function getWeatherCodeMessage(weatherCodeJson) {
@@ -86,15 +88,9 @@ function getWeatherCodeMessage(weatherCodeJson) {
   }
   return weatherCodeMessage;
 }
-function saveLinks(links, clickCount) {
-  // Set the link at the current click count index to null
-  links[clickCount] = null;
-
-  // Save the updated links array to localStorage
-  localStorage.setItem("links", JSON.stringify(links));
-}
 
 function WeatherAPI() {
+  console.log("WeatherAPI component rendered");
   const { state, dispatch } = useCityData();
   const selectedLocation = state.searchData;
   const [currentWeather, setWeather] = useState(null);
@@ -112,27 +108,24 @@ function WeatherAPI() {
   const [UVIndex, setUVIndex] = useState("");
   const [clickCount, setClickCount] = useState(0);
   const [activeDotIndex, setActiveDotIndex] = useState(0);
-  const [links, setLinks] = useState(() => {
-    const storedLinks = localStorage.getItem("links");
-    const initialLinks = storedLinks ? JSON.parse(storedLinks) : [];
-  
-    // Create an array with null values based on clickCount
-    const initialArray = Array.from({ length: clickCount }, () => null);
-  
-    // Combine the stored links and null values
-    return initialArray.map((_, index) => initialLinks[index] || null);
-  });
+  const [links, setLinks] = useState();
 
-  links.forEach((link) => {
-    console.log(link);
-  })
+  const updateFromLocalStorage = () => {
+    const appData = JSON.parse(localStorage.getItem("appData"));
+    setActiveDotIndex(appData.activeDotIndex);
+    setClickCount(appData.clickCount);
+  };
+
   useEffect(() => {
-    if (selectedLocation) {
-      const { latitude, longitude } = selectedLocation;
-      const apiLink = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,rain,showers,snowfall,weather_code,cloud_cover,wind_speed_10m,wind_direction_10m,uv_index&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,apparent_temperature,precipitation_probability,precipitation,rain,showers,snowfall,snow_depth,visibility,uv_index,is_day&daily=temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,sunrise,sunset,uv_index_max,precipitation_sum,precipitation_hours&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=auto`;
+    console.log("useEffect 1 is running"); // Add this log
+    const appData = JSON.parse(localStorage.getItem("appData"));
+    setActiveDotIndex(appData.activeDotIndex);
+    setClickCount(appData.clickCount);
+  }, [updateFromLocalStorage]);
 
-      // Fetch data using the link
-      fetch(apiLink)
+  function fetchLinkData(link) {
+    if (link !== null) {
+      fetch(link)
         .then((response) => response.json())
         .then((json) => {
           console.log(json);
@@ -207,18 +200,44 @@ function WeatherAPI() {
           console.log(error.message);
         });
     }
-  // Save null value for the current click count
-  setLinks(prevLinks => {
-    const updatedLinks = [...prevLinks];
-    for (let i = prevLinks.length; i < clickCount; i++) {
-      updatedLinks[i] = null;
-    }
-    localStorage.setItem("links", JSON.stringify(updatedLinks));
-    return updatedLinks;
-  });
-  saveLinks(links)
-}, [selectedLocation, dispatch, memoizedDispatch, clickCount]);
+  }
 
+  useEffect(() => {
+    console.log("useEffect 2 is running");
+  
+    const localStorageLinks = JSON.parse(localStorage.getItem("links"));
+    setLinks(localStorageLinks);
+  
+    const appComponentParent = document.querySelector(".locationsContainer");
+    const appComponentCount = appComponentParent.children.length;
+  
+    localStorageLinks.forEach((link, linkIndex) => {
+      if (link !== null) { // Add this condition to skip null links
+        for (let appIndex = 0; appIndex < appComponentCount; appIndex++) {
+          if (linkIndex === appIndex) {
+            console.log("Link Index:", linkIndex, "AppComponent Index:", appIndex);
+            // Fetch the link for the app component
+            fetchLinkData(link);
+          }
+        }
+      }
+    });
+  }, []);
+
+  //console.log(clickCount, activeDotIndex);
+  useEffect(() => {
+    console.log("useEffect 3 is running"); // Add this log
+    if (selectedLocation) {
+      const { latitude, longitude } = selectedLocation;
+      let apiLink = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,rain,showers,snowfall,weather_code,cloud_cover,wind_speed_10m,wind_direction_10m,uv_index&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,apparent_temperature,precipitation_probability,precipitation,rain,showers,snowfall,snow_depth,visibility,uv_index,is_day&daily=temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,sunrise,sunset,uv_index_max,precipitation_sum,precipitation_hours&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=auto`;
+
+      // Fetch data using the link
+      fetchLinkData(apiLink)
+        
+      saveLinks(apiLink, activeDotIndex, clickCount);
+    }
+    // Save null value for the current click count
+  }, [selectedLocation]);
 
   let percipitationMessage;
   let rainMessage;
