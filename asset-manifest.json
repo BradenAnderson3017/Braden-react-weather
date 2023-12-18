@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/static/css/main.064fe2cc.css",
-    "main.js": "/static/js/main.681b120f.js",
-    "static/js/787.259f313a.chunk.js": "/static/js/787.259f313a.chunk.js",
-    "index.html": "/index.html",
-    "main.064fe2cc.css.map": "/static/css/main.064fe2cc.css.map",
-    "main.681b120f.js.map": "/static/js/main.681b120f.js.map",
-    "787.259f313a.chunk.js.map": "/static/js/787.259f313a.chunk.js.map"
+    "main.css": "/Braden-react-weather/static/css/main.4162328d.css",
+    "main.js": "/Braden-react-weather/static/js/main.b4a30ee9.js",
+    "static/js/787.259f313a.chunk.js": "/Braden-react-weather/static/js/787.259f313a.chunk.js",
+    "index.html": "/Braden-react-weather/index.html",
+    "main.4162328d.css.map": "/Braden-react-weather/static/css/main.4162328d.css.map",
+    "main.b4a30ee9.js.map": "/Braden-react-weather/static/js/main.b4a30ee9.js.map",
+    "787.259f313a.chunk.js.map": "/Braden-react-weather/static/js/787.259f313a.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.064fe2cc.css",
-    "static/js/main.681b120f.js"
+    "static/css/main.4162328d.css",
+    "static/js/main.b4a30ee9.js"
   ]
 }
