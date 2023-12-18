@@ -107,14 +107,12 @@ function App() {
       clickCount: 0,
       activeDotIndex: 0,
     };
-
+  
     // Update the state with the retrieved clickCount
     setClickCount(appData.clickCount);
-    setActiveDotIndex(appData.activeDotIndex);
-
-    // Uncomment this line if you want to immediately save the clickCount to local storage
-    // saveDotsAndClickCount(appData.clickCount, appData.activeDotIndex);
-  }, []); // Empty dependency array to run the effect only once during mount
+    setActiveDotIndex(0); // Set activeDotIndex to 0 when the component is mounted or reloaded
+    saveDotsAndClickCount(appData.clickCount, 0); // Save activeDotIndex as 0
+  }, []);
 
   // handling button to add location components
   function handleButtonClick() {
@@ -147,7 +145,6 @@ function App() {
       window.removeEventListener("wheel", handleScroll);
     };
   }, [clickCount]); 
-  // handle user scrolling and updating current active dot
   function handleScroll() {
     if (!dotsContainerRef.current) return;
   
@@ -164,6 +161,7 @@ function App() {
       return activeIndex;
     });
   }
+  // handle user scrolling and updating current active dot
 
 
   // jsx return

@@ -26,6 +26,7 @@ function SearchFunction() {
   const [selectedLocation, setSelectedLocation] = useState({
     latitude: null,
     longitude: null,
+    name: null,
   });
   const [timeZone, setTimeZone] = useState("");
 
@@ -53,10 +54,14 @@ function SearchFunction() {
   function chosenLocation(city) {
     const CityTimeZone = `${city?.timezone}`;
     setTimeZone(CityTimeZone);
+    // console.log('timeZone: ',timeZone, CityTimeZone);
+    // console.log(`${city.name}${city.admin1 ? `, ${city.admin1}` : ''}`);
     setSelectedLocation({
       latitude: city.latitude,
       longitude: city.longitude,
+      name: `${city.name}${city.admin1 ? `, ${city.admin1}` : ''}`,
     });
+  
 
     dispatch({ type: "FETCH_DATA", payload: city });
 

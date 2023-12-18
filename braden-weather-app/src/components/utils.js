@@ -1,19 +1,15 @@
+// utils.js
+export function saveLinks(link, activeDotIndex) {
+  const localStorageLinks = JSON.parse(localStorage.getItem("links")) || [];
 
-export function saveLinks(newLink, activeDotIndex, clickCount) {
-    let existingLinks = localStorage.getItem("links")
-      ? JSON.parse(localStorage.getItem("links"))
-      : Array.from({ length: clickCount }, () => null);
-  
-    existingLinks[activeDotIndex] = newLink;
-  
-    if (existingLinks.length < clickCount) {
-      existingLinks = Array.from({ length: clickCount }, (_, index) =>
-        existingLinks[index] !== undefined ? existingLinks[index] : null
-      );
-    }
-  
-    localStorage.setItem("links", JSON.stringify(existingLinks));
-    console.log("activeDotIndex: ", activeDotIndex);
-    console.log('existing links: ', existingLinks);
+  // Ensure the array has enough slots for the activeDotIndex
+  while (localStorageLinks.length <= activeDotIndex) {
+    localStorageLinks.push(null);
   }
-  
+
+  // Save the link at the correct index
+  console.log(activeDotIndex);
+  localStorageLinks[activeDotIndex] = link;
+
+  localStorage.setItem("links", JSON.stringify(localStorageLinks));
+}

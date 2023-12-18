@@ -94,6 +94,7 @@ function WeatherAPI() {
   const { state, dispatch } = useCityData();
   const selectedLocation = state.searchData;
   const [currentWeather, setWeather] = useState(null);
+  const [locationName, setLocationName] = useState(null);
   const [timeZone, setTimeZone] = useState("");
   const [apparentTemp, setApparentTemp] = useState("");
   const memoizedDispatch = useCallback(dispatch, [dispatch]);
@@ -104,31 +105,35 @@ function WeatherAPI() {
   const [humidity, setHumdity] = useState("");
   const [windDirection, setwindDirection] = useState("");
   const [windSpeed, setWindSpeed] = useState("");
-  const [isDay, setIsDay] = useState("");
   const [UVIndex, setUVIndex] = useState("");
   const [clickCount, setClickCount] = useState(0);
   const [activeDotIndex, setActiveDotIndex] = useState(0);
   const [links, setLinks] = useState();
 
-  const updateFromLocalStorage = () => {
-    const appData = JSON.parse(localStorage.getItem("appData"));
-    setActiveDotIndex(appData.activeDotIndex);
-    setClickCount(appData.clickCount);
-  };
-
   useEffect(() => {
-    console.log("useEffect 1 is running"); // Add this log
+    console.log("useEffect 1 is running");
+  
     const appData = JSON.parse(localStorage.getItem("appData"));
-    setActiveDotIndex(appData.activeDotIndex);
-    setClickCount(appData.clickCount);
-  }, [updateFromLocalStorage]);
+    if (appData) {
+      const { activeDotIndex: storedActiveDotIndex, clickCount: storedClickCount } = appData;
+  
+      // Check if values are different before updating state
+      if (storedActiveDotIndex !== activeDotIndex || storedClickCount !== clickCount) {
+        setActiveDotIndex(storedActiveDotIndex);
+        setClickCount(storedClickCount);
+      }
+    }
+  
+    console.log(activeDotIndex, clickCount);
+  }, [activeDotIndex, clickCount]);
+  
 
   function fetchLinkData(link) {
     if (link !== null) {
       fetch(link)
         .then((response) => response.json())
         .then((json) => {
-          console.log(json);
+          //console.log(json);
           const time = json.timezone;
           // Format the date and time
           const updatedTimeDateData = timeDateContainer(
@@ -193,8 +198,7 @@ function WeatherAPI() {
               json.current_units.wind_direction_10m
           );
           setWindSpeed(json.current.wind_speed_10m + " " + "MPH");
-
-          setIsDay(json.current.is_day);
+          
         })
         .catch((error) => {
           console.log(error.message);
@@ -205,40 +209,49 @@ function WeatherAPI() {
   useEffect(() => {
     console.log("useEffect 2 is running");
   
-    const localStorageLinks = JSON.parse(localStorage.getItem("links"));
+    const localStorageLinks = JSON.parse(localStorage.getItem("links")) || links;
     setLinks(localStorageLinks);
   
     const appComponentParent = document.querySelector(".locationsContainer");
     const appComponentCount = appComponentParent.children.length;
   
-    localStorageLinks.forEach((link, linkIndex) => {
-      if (link !== null) { // Add this condition to skip null links
-        for (let appIndex = 0; appIndex < appComponentCount; appIndex++) {
-          if (linkIndex === appIndex) {
-            console.log("Link Index:", linkIndex, "AppComponent Index:", appIndex);
-            // Fetch the link for the app component
-            fetchLinkData(link);
-          }
+    // Filter out null links
+    const validLinks = localStorageLinks.filter((link) => link !== null);
+  
+    // Fetch data for each valid link
+    validLinks.forEach((link, linkIndex) => {
+      console.log('hello,',link,linkIndex)
+      for (let appIndex = 0; appIndex < appComponentCount; appIndex++) {
+        if (linkIndex === appIndex) {
+          console.log(linkIndex, appIndex);
+          // Fetch the link for the app component
+          fetchLinkData(link);
         }
       }
     });
-  }, []);
-
-  //console.log(clickCount, activeDotIndex);
+  }, []); // Include activeDotIndex as a dependency
+  
+  
   useEffect(() => {
-    console.log("useEffect 3 is running"); // Add this log
+    console.log("useEffect 3 is running");
+  
     if (selectedLocation) {
-      const { latitude, longitude } = selectedLocation;
+      const { latitude, longitude, name } = selectedLocation;
+      console.log(selectedLocation, name);
+      setLocationName(name !== null && name !== '' ? name : 'name not available');
       let apiLink = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,rain,showers,snowfall,weather_code,cloud_cover,wind_speed_10m,wind_direction_10m,uv_index&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,apparent_temperature,precipitation_probability,precipitation,rain,showers,snowfall,snow_depth,visibility,uv_index,is_day&daily=temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,sunrise,sunset,uv_index_max,precipitation_sum,precipitation_hours&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=auto`;
-
+      
       // Fetch data using the link
-      fetchLinkData(apiLink)
-        
-      saveLinks(apiLink, activeDotIndex, clickCount);
+      fetchLinkData(apiLink);
+      //active dot index is being passed through as zero, why?
+      // Pass activeDotIndex to saveLinks
+      saveLinks(apiLink, activeDotIndex);
+      console.log('apilink: ', apiLink);
+      console.log('dotindex: ', activeDotIndex);
+      console.log('clickcount: ', clickCount);
     }
-    // Save null value for the current click count
   }, [selectedLocation]);
-
+  
   let percipitationMessage;
   let rainMessage;
   let snowMessage;
@@ -250,7 +263,7 @@ function WeatherAPI() {
       rainMessage = "No Rain in the forecast";
     } else {
       rainMessage =
-        rain > 1
+        rain !== 1
           ? `${rain} inches of rain are expected`
           : `${rain} inch of rain is expected`;
     }
@@ -259,16 +272,16 @@ function WeatherAPI() {
       snowMessage = "No Snow in the forecast";
     } else {
       snowMessage =
-        snow > 1
+        snow !== 1
           ? `${snow} inches of snow are expected`
           : `${snow} inch of snow is expected`;
     }
   }
-
   return (
     <>
       <div className="currentBody">
         <div className="currentWeatherBody">
+          <h1 className="location">{locationName}</h1>
           <p className="currentWeather">{currentWeather}</p>
           {apparentTemp && (
             <p className="apparent">{"Feels like" + " " + apparentTemp}</p>
@@ -315,7 +328,6 @@ function WeatherAPI() {
             <p className="windDirection">{windDirection}</p>
             <p className="windSpeed">{windSpeed}</p>
           </div>
-          {/* <p className="isDay">{isDay}</p> */}
         </div>
       </div>
     </>
