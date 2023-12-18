@@ -90,11 +90,10 @@ function getWeatherCodeMessage(weatherCodeJson) {
 }
 
 function WeatherAPI() {
-  console.log("WeatherAPI component rendered");
   const { state, dispatch } = useCityData();
   const selectedLocation = state.searchData;
+  const [locationName, setLocationName] = useState("");
   const [currentWeather, setWeather] = useState(null);
-  const [locationName, setLocationName] = useState(null);
   const [timeZone, setTimeZone] = useState("");
   const [apparentTemp, setApparentTemp] = useState("");
   const memoizedDispatch = useCallback(dispatch, [dispatch]);
@@ -111,7 +110,6 @@ function WeatherAPI() {
   const [links, setLinks] = useState();
 
   useEffect(() => {
-    console.log("useEffect 1 is running");
   
     const appData = JSON.parse(localStorage.getItem("appData"));
     if (appData) {
@@ -143,18 +141,18 @@ function WeatherAPI() {
 
           // Update the state with the returned data
           setTimeZone(updatedTimeDateData.timeZone);
-
+          
           if (
             json.daily &&
             json.daily.temperature_2m_min &&
             json.daily.temperature_2m_max
-          ) {
-            const min = json.daily.temperature_2m_min;
-            const max = json.daily.temperature_2m_max;
-
-            const roundedMin = min.map((temp) =>
+            ) {
+              const min = json.daily.temperature_2m_min;
+              const max = json.daily.temperature_2m_max;
+              
+              const roundedMin = min.map((temp) =>
               temp ? Math.round(temp) : null
-            );
+              );
             const roundedMax = max.map((temp) =>
               temp ? Math.round(temp) : null
             );
@@ -198,6 +196,12 @@ function WeatherAPI() {
               json.current_units.wind_direction_10m
           );
           setWindSpeed(json.current.wind_speed_10m + " " + "MPH");
+          const localStorageLinks = JSON.parse(localStorage.getItem("links")) || links;
+          localStorageLinks.forEach((item) => {
+            if (link === item.link) {
+              setLocationName(item.locationName)
+            }
+          })
           
         })
         .catch((error) => {
@@ -207,7 +211,6 @@ function WeatherAPI() {
   }
 
   useEffect(() => {
-    console.log("useEffect 2 is running");
   
     const localStorageLinks = JSON.parse(localStorage.getItem("links")) || links;
     setLinks(localStorageLinks);
@@ -220,12 +223,11 @@ function WeatherAPI() {
   
     // Fetch data for each valid link
     validLinks.forEach((link, linkIndex) => {
-      console.log('hello,',link,linkIndex)
       for (let appIndex = 0; appIndex < appComponentCount; appIndex++) {
         if (linkIndex === appIndex) {
           console.log(linkIndex, appIndex);
           // Fetch the link for the app component
-          fetchLinkData(link);
+          fetchLinkData(link.link);
         }
       }
     });
@@ -233,19 +235,19 @@ function WeatherAPI() {
   
   
   useEffect(() => {
-    console.log("useEffect 3 is running");
   
     if (selectedLocation) {
-      const { latitude, longitude, name } = selectedLocation;
-      console.log(selectedLocation, name);
-      setLocationName(name !== null && name !== '' ? name : 'name not available');
+      const { latitude, longitude } = selectedLocation;
+      const id = selectedLocation.id;
+      const cityName = (`${selectedLocation.name}${selectedLocation.admin1 ? `, ${selectedLocation.admin1}` : ''}`) || '';
+      setLocationName(cityName);
       let apiLink = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,rain,showers,snowfall,weather_code,cloud_cover,wind_speed_10m,wind_direction_10m,uv_index&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,apparent_temperature,precipitation_probability,precipitation,rain,showers,snowfall,snow_depth,visibility,uv_index,is_day&daily=temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,sunrise,sunset,uv_index_max,precipitation_sum,precipitation_hours&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=auto`;
       
       // Fetch data using the link
-      fetchLinkData(apiLink);
+      fetchLinkData(apiLink.link);
       //active dot index is being passed through as zero, why?
       // Pass activeDotIndex to saveLinks
-      saveLinks(apiLink, activeDotIndex);
+      saveLinks(apiLink, activeDotIndex, cityName, timeZone, id);
       console.log('apilink: ', apiLink);
       console.log('dotindex: ', activeDotIndex);
       console.log('clickcount: ', clickCount);

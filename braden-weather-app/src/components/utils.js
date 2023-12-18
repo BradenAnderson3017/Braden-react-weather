@@ -1,5 +1,5 @@
 // utils.js
-export function saveLinks(link, activeDotIndex) {
+export function saveLinks(link, activeDotIndex, locationName, timeZone, id) {
   const localStorageLinks = JSON.parse(localStorage.getItem("links")) || [];
 
   // Ensure the array has enough slots for the activeDotIndex
@@ -9,7 +9,8 @@ export function saveLinks(link, activeDotIndex) {
 
   // Save the link at the correct index
   console.log(activeDotIndex);
-  localStorageLinks[activeDotIndex] = link;
+  localStorageLinks[activeDotIndex] = { link, locationName, timeZone, id };
 
   localStorage.setItem("links", JSON.stringify(localStorageLinks));
 }
+

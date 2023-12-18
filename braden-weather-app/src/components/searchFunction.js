@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useCityData } from "../App";
 import TimeZoneClock from "./timezone";
 import "./searchFunction.css";
@@ -23,10 +23,14 @@ function getFlagUrl(countryCode) {
 function SearchFunction() {
   const [location, changeLocation] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [id, setId] = useState("");
+  const [clickCount, setClickCount] = useState(0);
+  const [activeDotIndex, setActiveDotIndex] = useState(0);
   const [selectedLocation, setSelectedLocation] = useState({
     latitude: null,
     longitude: null,
     name: null,
+    id: null,
   });
   const [timeZone, setTimeZone] = useState("");
 
@@ -50,19 +54,41 @@ function SearchFunction() {
         });
     }
   }
+  useEffect(() => {
+    const appData = JSON.parse(localStorage.getItem("appData")) || [];
+   setActiveDotIndex(appData.activeDotIndex);
+   setClickCount(appData.clickCount); 
+   
+  }, []);
+
+
+  // Fetch the stored time zones from local storage
+  const storedTimeZones = JSON.parse(localStorage.getItem("links")) || [];
+
+  useEffect(() => {
+    // Get the index of the current app component
+    const currentIndex = storedTimeZones.findIndex((link, index) => {
+      //console.log(link, link.name);
+      if (index === activeDotIndex) {
+        //console.log(storedTimeZones[activeDotIndex].timeZone)
+        setTimeZone(storedTimeZones[activeDotIndex].timeZone);
+      }
+    });
+
+   
+  }, [storedTimeZones]);
 
   function chosenLocation(city) {
     const CityTimeZone = `${city?.timezone}`;
+    setId(city.id);
     setTimeZone(CityTimeZone);
-    // console.log('timeZone: ',timeZone, CityTimeZone);
-    // console.log(`${city.name}${city.admin1 ? `, ${city.admin1}` : ''}`);
+    console.log("timeZone: ", timeZone, CityTimeZone);
     setSelectedLocation({
       latitude: city.latitude,
       longitude: city.longitude,
-      name: `${city.name}${city.admin1 ? `, ${city.admin1}` : ''}`,
+      name: `${city.name}${city.admin1 ? `, ${city.admin1}` : ""}`,
+      id: city.id,
     });
-  
-
     dispatch({ type: "FETCH_DATA", payload: city });
 
     // Clear input value
@@ -128,7 +154,7 @@ function SearchFunction() {
               })}
           </ul>
         </div>
-        <TimeZoneClock timeZone={timeZone ? timeZone : undefined} />
+        {timeZone !== "" && <TimeZoneClock timeZone={timeZone} />}
       </div>
     </>
   );
