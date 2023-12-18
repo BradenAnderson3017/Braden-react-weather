@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/Braden-react-weather/static/css/main.4162328d.css",
-    "main.js": "/Braden-react-weather/static/js/main.b4a30ee9.js",
+    "main.css": "/Braden-react-weather/static/css/main.22c4732f.css",
+    "main.js": "/Braden-react-weather/static/js/main.315681f4.js",
     "static/js/787.259f313a.chunk.js": "/Braden-react-weather/static/js/787.259f313a.chunk.js",
     "index.html": "/Braden-react-weather/index.html",
-    "main.4162328d.css.map": "/Braden-react-weather/static/css/main.4162328d.css.map",
-    "main.b4a30ee9.js.map": "/Braden-react-weather/static/js/main.b4a30ee9.js.map",
+    "main.22c4732f.css.map": "/Braden-react-weather/static/css/main.22c4732f.css.map",
+    "main.315681f4.js.map": "/Braden-react-weather/static/js/main.315681f4.js.map",
     "787.259f313a.chunk.js.map": "/Braden-react-weather/static/js/787.259f313a.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.4162328d.css",
-    "static/js/main.b4a30ee9.js"
+    "static/css/main.22c4732f.css",
+    "static/js/main.315681f4.js"
   ]
 }
