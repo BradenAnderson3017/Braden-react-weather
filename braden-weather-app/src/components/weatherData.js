@@ -244,15 +244,12 @@ function WeatherAPI() {
       let apiLink = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,rain,showers,snowfall,weather_code,cloud_cover,wind_speed_10m,wind_direction_10m,uv_index&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,apparent_temperature,precipitation_probability,precipitation,rain,showers,snowfall,snow_depth,visibility,uv_index,is_day&daily=temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,sunrise,sunset,uv_index_max,precipitation_sum,precipitation_hours&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=auto`;
       
       // Fetch data using the link
-      fetchLinkData(apiLink.link);
-      //active dot index is being passed through as zero, why?
-      // Pass activeDotIndex to saveLinks
+      fetchLinkData(apiLink);
       saveLinks(apiLink, activeDotIndex, cityName, timeZone, id);
-      console.log('apilink: ', apiLink);
-      console.log('dotindex: ', activeDotIndex);
-      console.log('clickcount: ', clickCount);
+
     }
   }, [selectedLocation]);
+
   
   let percipitationMessage;
   let rainMessage;
