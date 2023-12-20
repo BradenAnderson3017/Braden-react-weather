@@ -61,22 +61,14 @@ function SearchFunction() {
    
   }, []);
 
-
-  // Fetch the stored time zones from local storage
-  const storedTimeZones = JSON.parse(localStorage.getItem("links")) || [];
-
   useEffect(() => {
-    // Get the index of the current app component
-    const currentIndex = storedTimeZones.findIndex((link, index) => {
-      //console.log(link, link.name);
-      if (index === activeDotIndex) {
-        //console.log(storedTimeZones[activeDotIndex].timeZone)
-        setTimeZone(storedTimeZones[activeDotIndex].timeZone);
-      }
-    });
-
-   
-  }, [storedTimeZones]);
+    const localStorageLinks = JSON.parse(localStorage.getItem("links")) || [];
+    if ( localStorageLinks ) {
+      localStorageLinks.find((time) => {
+        setTimeZone(time.timeZone);
+      })
+    }
+  }, [])
 
   function chosenLocation(city) {
     const CityTimeZone = `${city?.timezone}`;
@@ -88,6 +80,7 @@ function SearchFunction() {
       longitude: city.longitude,
       name: `${city.name}${city.admin1 ? `, ${city.admin1}` : ""}`,
       id: city.id,
+      timeZone: CityTimeZone,
     });
     dispatch({ type: "FETCH_DATA", payload: city });
 

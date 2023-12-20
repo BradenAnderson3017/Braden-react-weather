@@ -6,7 +6,6 @@ export function saveLinks(link, activeDotIndex, locationName, timeZone, id) {
   while (localStorageLinks.length <= activeDotIndex) {
     localStorageLinks.push(null);
   }
-
   // Save the link at the correct index
   localStorageLinks[activeDotIndex] = { link, locationName, timeZone, id };
   console.log("Updated links array:", localStorageLinks);

@@ -140,6 +140,7 @@ function WeatherAPI() {
           );
 
           // Update the state with the returned data
+        
           setTimeZone(updatedTimeDateData.timeZone);
           
           if (
@@ -196,7 +197,7 @@ function WeatherAPI() {
               json.current_units.wind_direction_10m
           );
           setWindSpeed(json.current.wind_speed_10m + " " + "MPH");
-          const localStorageLinks = JSON.parse(localStorage.getItem("links")) || links;
+          const localStorageLinks = JSON.parse(localStorage.getItem("links")) || [];
           localStorageLinks.forEach((item) => {
             if (link === item.link) {
               setLocationName(item.locationName)
@@ -212,7 +213,7 @@ function WeatherAPI() {
 
   useEffect(() => {
   
-    const localStorageLinks = JSON.parse(localStorage.getItem("links")) || links;
+    const localStorageLinks = JSON.parse(localStorage.getItem("links")) || [];
     setLinks(localStorageLinks);
   
     const appComponentParent = document.querySelector(".locationsContainer");
@@ -233,9 +234,10 @@ function WeatherAPI() {
     });
   }, []); // Include activeDotIndex as a dependency
   
+  //it works correctly here
+  console.log(timeZone);
   
   useEffect(() => {
-  
     if (selectedLocation) {
       const { latitude, longitude } = selectedLocation;
       const id = selectedLocation.id;
@@ -248,7 +250,7 @@ function WeatherAPI() {
       saveLinks(apiLink, activeDotIndex, cityName, timeZone, id);
 
     }
-  }, [selectedLocation]);
+  }, [selectedLocation, timeZone]);
 
   
   let percipitationMessage;
